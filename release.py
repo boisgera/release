@@ -79,6 +79,7 @@ class Release(setuptools.Command):
         short_version = "v{0}".format(self.version)
         long_version = "version {0}".format(self.version)
         print git.commit("-a", "-m", long_version)
+        print git.push()
         print git.tag("-a", short_version, "-m", long_version)
         print git.push("--tags")
 
