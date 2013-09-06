@@ -41,7 +41,6 @@ class Release(setuptools.Command):
             if self.pypi:
                 self.release_on_pypi()
             if self.github:
-                print ">>>"
                 self.release_on_github()
 
     # This is Pypi package info to be honest ... rename and don't use
@@ -76,7 +75,6 @@ class Release(setuptools.Command):
                 raise RuntimeError(last_line)
 
     def release_on_github(self):
-        print "***"
         git = sh.git
         short_version = "v{0}".format(self.version)
         long_version = "version {0}".format(self.version)

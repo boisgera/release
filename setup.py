@@ -7,7 +7,7 @@ if __name__ == "__main__":
     setup(
       name = "setup-release",
       py_modules = ["release"],
-      version = "0.0.3",
+      version = "0.0.4",
       author = u"Sébastien Boisgérault",
       author_email = "Sebastien.Boisgerault@gmail.com",
       url = "https://pypi.python.org/pypi/release",
