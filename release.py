@@ -89,15 +89,19 @@ class Release(setuptools.Command):
             if not "(200)" in last_line:
                 raise RuntimeError(last_line)
 
-# BUG: for some reason, getting stuck in this function.
+# BUG: for some reason, getting stuck in this function. Uhu ? One-by-one,
+#      it works ?
     def release_on_github(self):
         git = sh.git
         short_version = "v{0}".format(self.version)
         long_version = "version {0}".format(self.version)
         print git.commit("-a", "-m", long_version)
+        print "*"
         print git.push()
+        print "**"
         print git.tag("-a", short_version, "-m", long_version)
+        print "***"
         print git.push("--tags")
-
+        print "****"
 
 
