@@ -58,7 +58,6 @@ class Release(setuptools.Command):
         print "Pypi releases: {0}".format(", ".join(releases))
 
     def display_git(self):
-        # TODO: distinguish local version and version uploaded on GitHub ?
         tags = sh.git("tag").splitlines()
         versions = [tag[1:] for tag in tags if re.match("v[0-9]", tag)]
         versions.reverse()
@@ -90,6 +89,7 @@ class Release(setuptools.Command):
             if not "(200)" in last_line:
                 raise RuntimeError(last_line)
 
+# BUG: for some reason, getting stuck in this function.
     def release_on_github(self):
         git = sh.git
         short_version = "v{0}".format(self.version)
