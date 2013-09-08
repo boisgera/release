@@ -96,7 +96,8 @@ class Release(setuptools.Command):
         short_version = "v{0}".format(self.version)
         long_version = "version {0}".format(self.version)
         print git.commit("-a", "-m", long_version)
-        print "*"
+        print "*" # STUCK IN THE PUSH ... transfrom into some iter version ?
+        # to see if there is a message ? Maybe that's a root id pb.
         print git.push()
         print "**"
         print git.tag("-a", short_version, "-m", long_version)
