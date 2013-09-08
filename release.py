@@ -2,13 +2,14 @@
 # coding: utf-8
 
 # Python 2.7 Standard Library
-import ConfigParser
 import os
+import re
 import xmlrpclib
 
 # Third-Party Libairies
 import setuptools
 import sh
+
 
 class Release(setuptools.Command):
 
@@ -36,23 +37,38 @@ class Release(setuptools.Command):
         self.name = self.distribution.get_name()
         self.version = self.distribution.get_version()
         if self.list:
-            self.display_package_info()
+            if self.pypi:
+                self.display_pypi()
+            if self.github:
+                self.display_git()
         else:
             if self.pypi:
                 self.release_on_pypi()
             if self.github:
                 self.release_on_github()
 
-    # This is Pypi package info to be honest ... rename and don't use
-    # unless pypi is selected.
-    def display_package_info(self):
+    def display_pypi(self):
         pypi = xmlrpclib.ServerProxy("http://pypi.python.org/pypi")
         print "current version: {0}".format(self.version)
-        releases = pypi.package_releases(self.name) # shows visible only
+        visible = pypi.package_releases(self.name)
+        releases = pypi.package_releases(self.name, True)
+        for i, release in enumerate(releases):
+            if not release in visible:
+                releases[i] = "({0})".format(release)
         print "Pypi releases: {0}".format(", ".join(releases))
 
+    def display_git(self):
+        # TODO: distinguish local version and version uploaded on GitHub ?
+        tags = sh.git("tag").splitlines()
+        versions = [tag[1:] for tag in tags if re.match("v[0-9]", tag)]
+        versions.reverse()
+        print "Git versions: {0}".format(", ".join(versions))
+
     def check(self):
-        self.display_package_info()
+        if self.pypi:
+            self.display_pypi()
+        if self.github:
+            self.display_git()
         answer = raw_input("Accept ? [Y/n] ")
         answer = answer or "Y"
         return (answer[0].upper() == "Y")        
