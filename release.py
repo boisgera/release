@@ -97,6 +97,7 @@ class Release(setuptools.Command):
             git = sh.git
             short_version = "v{0}".format(self.version)
             long_version = "version {0}".format(self.version)
+            print "---"
             out = ""
             try:
                 out = str(git.commit("-a", "-m", long_version))
