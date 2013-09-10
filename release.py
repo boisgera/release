@@ -4,6 +4,7 @@
 # Python 2.7 Standard Library
 import os
 import re
+import sys
 import xmlrpclib
 
 # Third-Party Libairies
@@ -92,17 +93,23 @@ class Release(setuptools.Command):
 # BUG: for some reason, getting stuck in this function. Uhu ? One-by-one,
 #      it works ?
     def release_on_github(self):
-        git = sh.git
-        short_version = "v{0}".format(self.version)
-        long_version = "version {0}".format(self.version)
-        print git.commit("-a", "-m", long_version)
-        print "*" # STUCK IN THE PUSH ... transfrom into some iter version ?
-        # to see if there is a message ? Maybe that's a root id pb.
-        print git.push()
-        print "**"
-        print git.tag("-a", short_version, "-m", long_version)
-        print "***"
-        print git.push("--tags")
-        print "****"
+        if self.check():
+            git = sh.git
+            short_version = "v{0}".format(self.version)
+            long_version = "version {0}".format(self.version)
+            out = ""
+            try:
+                out = str(git.commit("-a", "-m", long_version))
+            except sh.ErrorReturnCode:
+                if not "nothing to commit" in out:
+                    sys.exit(out)
+            print "*" # STUCK IN THE PUSH ... transfrom into some iter version ?
+            # to see if there is a message ? Maybe that's a root id pb. Seems so.
+            print git.push()
+            print "**"
+            print git.tag("-a", short_version, "-m", long_version)
+            print "***"
+            print git.push("--tags")
+            print "****"
 
 
