@@ -12,6 +12,8 @@ import path # path.py library
 import setuptools
 import sh
 
+def printer(line, stdin):
+    print line,
 
 class Release(setuptools.Command):
 
@@ -108,23 +110,8 @@ class Release(setuptools.Command):
         git = sh.git
         short_version = "v{0}".format(self.version)
         long_version = "version {0}".format(self.version)
-        print "---"
-        try:
-            git.commit("-a", "-m", long_version)
-        except sh.ErrorReturnCode as error:
-            if not "nothing to commit" in error.stdout:
-                sys.exit(error.stdout)
-        print "*" # STUCK IN THE PUSH ... transfrom into some iter version ?
-        # to see if there is a message ? Maybe that's a root id pb. Seems so.
-        # So we should detect it ? But then what should we do ? Because it 
-        # can make sense for when --pypi is on to be root (to access metadata).
-        # Also, if the repo was not obtain with ssh, git may be asking for a
-        # password to accept the push ...
-        print git.push()
-        print "**"
-        print git.tag("-a", short_version, "-m", long_version)
-        print "***"
-        print git.push("--tags")
-        print "****"
-
+        git.commit("-a", "-m", long_version, _out=printer)
+        git.push(_out=printer)
+        git.tag("-a", short_version, "-m", long_version, _out=printer)
+        git.push("--tags", _out=printer)
 
