@@ -44,10 +44,11 @@ class Release(setuptools.Command):
             if self.github:
                 self.display_git()
         else:
-            if self.pypi:
-                self.release_on_pypi()
-            if self.github:
-                self.release_on_github()
+            if self.check():
+                if self.pypi:
+                    self.release_on_pypi()
+                if self.github:
+                    self.release_on_github()
 
     def display_pypi(self):
         pypi = xmlrpclib.ServerProxy("http://pypi.python.org/pypi")
@@ -86,48 +87,44 @@ class Release(setuptools.Command):
             sh.sudo.rm("-rf", *egg_infos)
 
     def release_on_pypi(self):
-        if self.check():
-            self.clean()
-            setup = sh.Command("./setup.py")
+        self.clean()
+        setup = sh.Command("./setup.py")
 
-            # needs to be non-interactive: use a .pypirc file
-            response = setup("register")
-            print response
-            last_line = str(response).splitlines()[-1]
-            if not "(200)" in last_line:
-                raise RuntimeError(last_line)
+        # needs to be non-interactive: use a .pypirc file
+        response = setup("register")
+        print response
+        last_line = str(response).splitlines()[-1]
+        if not "(200)" in last_line:
+            raise RuntimeError(last_line)
 
-            response = setup("sdist", "upload")
-            print response
-            last_line = str(response).splitlines()[-1]
-            if not "(200)" in last_line:
-                raise RuntimeError(last_line)
+        response = setup("sdist", "upload")
+        print response
+        last_line = str(response).splitlines()[-1]
+        if not "(200)" in last_line:
+            raise RuntimeError(last_line)
 
-# BUG: for some reason, getting stuck in this function. Uhu ? One-by-one,
-#      it works ?
     def release_on_github(self):
-        if self.check():
-            self.clean()
-            git = sh.git
-            short_version = "v{0}".format(self.version)
-            long_version = "version {0}".format(self.version)
-            print "---"
-            try:
-                git.commit("-a", "-m", long_version)
-            except sh.ErrorReturnCode as error:
-                if not "nothing to commit" in error.stdout:
-                    sys.exit(error.stdout)
-            print "*" # STUCK IN THE PUSH ... transfrom into some iter version ?
-            # to see if there is a message ? Maybe that's a root id pb. Seems so.
-            # So we should detect it ? But then what should we do ? Because it 
-            # can make sense for when --pypi is on to be root (to access metadata).
-            # Also, if the repo was not obtain with ssh, git may be asking for a
-            # password to accept the push ...
-            print git.push()
-            print "**"
-            print git.tag("-a", short_version, "-m", long_version)
-            print "***"
-            print git.push("--tags")
-            print "****"
+        self.clean()
+        git = sh.git
+        short_version = "v{0}".format(self.version)
+        long_version = "version {0}".format(self.version)
+        print "---"
+        try:
+            git.commit("-a", "-m", long_version)
+        except sh.ErrorReturnCode as error:
+            if not "nothing to commit" in error.stdout:
+                sys.exit(error.stdout)
+        print "*" # STUCK IN THE PUSH ... transfrom into some iter version ?
+        # to see if there is a message ? Maybe that's a root id pb. Seems so.
+        # So we should detect it ? But then what should we do ? Because it 
+        # can make sense for when --pypi is on to be root (to access metadata).
+        # Also, if the repo was not obtain with ssh, git may be asking for a
+        # password to accept the push ...
+        print git.push()
+        print "**"
+        print git.tag("-a", short_version, "-m", long_version)
+        print "***"
+        print git.push("--tags")
+        print "****"
 
 
