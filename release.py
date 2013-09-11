@@ -8,6 +8,7 @@ import sys
 import xmlrpclib
 
 # Third-Party Libairies
+import path # path.py library
 import setuptools
 import sh
 
@@ -73,8 +74,20 @@ class Release(setuptools.Command):
         answer = answer or "Y"
         return (answer[0].upper() == "Y")        
 
+    def clean(self):
+        sudo_setup = getattr(sh.sudo, "./setup.py")
+        sudo_setup.clean()
+        sh.sudo("rm", "-rf", "dist", "build")
+        cwd = path.path(".")
+        tmp_files = cwd.files("*~") + cwd.files("*.pyc") 
+        sh.sudo("rm", "-rf", *tmp_files)
+        egg_infos = cwd.dirs("*.egg-info")
+        if egg_infos:
+            sh.sudo.rm("-rf", *egg_infos)
+
     def release_on_pypi(self):
         if self.check():
+            self.clean()
             setup = sh.Command("./setup.py")
 
             # needs to be non-interactive: use a .pypirc file
@@ -94,18 +107,22 @@ class Release(setuptools.Command):
 #      it works ?
     def release_on_github(self):
         if self.check():
+            self.clean()
             git = sh.git
             short_version = "v{0}".format(self.version)
             long_version = "version {0}".format(self.version)
             print "---"
-            out = ""
             try:
-                out = str(git.commit("-a", "-m", long_version))
-            except sh.ErrorReturnCode:
-                if not "nothing to commit" in out:
-                    sys.exit(out)
+                git.commit("-a", "-m", long_version)
+            except sh.ErrorReturnCode as error:
+                if not "nothing to commit" in error.stdout:
+                    sys.exit(error.stdout)
             print "*" # STUCK IN THE PUSH ... transfrom into some iter version ?
             # to see if there is a message ? Maybe that's a root id pb. Seems so.
+            # So we should detect it ? But then what should we do ? Because it 
+            # can make sense for when --pypi is on to be root (to access metadata).
+            # Also, if the repo was not obtain with ssh, git may be asking for a
+            # password to accept the push ...
             print git.push()
             print "**"
             print git.tag("-a", short_version, "-m", long_version)
