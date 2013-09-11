@@ -52,6 +52,8 @@ class Release(setuptools.Command):
                 if self.github:
                     self.release_on_github()
 
+    # TODO: select an order for versions in Pypi and Github and sort
+    #       accordingly. Use semantic versionning conventions / module ?
     def display_pypi(self):
         pypi = xmlrpclib.ServerProxy("http://pypi.python.org/pypi")
         print "current version: {0}".format(self.version)
