@@ -115,5 +115,6 @@ class Release(setuptools.Command):
         git.commit("-a", "-m", long_version, _out=printer)
         git.push(_out=printer)
         git.tag("-a", short_version, "-m", long_version, _out=printer)
+        git.push("--all", _out=printer)
         git.push("--tags", _out=printer)
 
