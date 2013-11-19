@@ -5,9 +5,9 @@ from setuptools import setup
 
 if __name__ == "__main__":
     setup(
-      name = "setup-release",
+      name = "release",
       py_modules = ["release"],
-      version = "0.0.11",
+      version = "0.0.13",
       author = u"Sébastien Boisgérault",
       author_email = "Sebastien.Boisgerault@gmail.com",
       url = "https://pypi.python.org/pypi/release",
