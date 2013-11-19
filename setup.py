@@ -5,7 +5,7 @@ from setuptools import setup
 
 if __name__ == "__main__":
     setup(
-      name = "release",
+      name = "setup-release",
       py_modules = ["release"],
       version = "0.0.13",
       author = u"Sébastien Boisgérault",
