@@ -31,11 +31,26 @@ class Release(setuptools.Command):
         self.github = False
 
     def finalize_options(self):
-        # values extracted from 'setup.cfg' are strings
-        if isinstance(self.pypi, str):
-            self.pypi = eval(self.pypi)
-        if isinstance(self.github, str):
-            self.github = eval(self.github)
+        # Boolean options needs to be interpreted explicitely as True or False. 
+        # Settings from setup.cfg return string values ; from the command-line,
+        # setting an option produces integer value 1 and when it is not set,
+        # we end up with None. 
+        for option, _, _ in self.user_options:
+            if not option.endswith("="): # boolean option (no argument)
+                value = getattr(self, option)
+                if isinstance(value, str):
+                    value = value.lower()
+                    if value in ["y", "yes", "t", "true", "on", "1"]:
+                        value = True
+                    elif value in ["n", "no", "f", "false", "off", "0"]:
+                        value = False
+                    else:
+                        error = "invalid truth value for option {0!r}: {1!r}."
+                        error = error.format(option, value)
+                        raise ValueError(error)
+                else:
+                    value = bool(value)
+                setattr(self, option, value) 
 
     def run(self):
         self.name = self.distribution.get_name()
