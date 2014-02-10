@@ -12,6 +12,8 @@ import path # path.py library
 import setuptools
 import sh
 
+# ------------------------------------------------------------------------------
+
 def printer(line, stdin):
     print line,
 
@@ -62,13 +64,12 @@ class Release(setuptools.Command):
                 self.display_git()
         else:
             if self.check():
+                self.update_local_git()
                 if self.pypi:
                     self.release_on_pypi()
                 if self.github:
                     self.release_on_github()
 
-    # TODO: select an order for versions in Pypi and Github and sort
-    #       accordingly. Use semantic versionning conventions / module ?
     def display_pypi(self):
         pypi = xmlrpclib.ServerProxy("http://pypi.python.org/pypi")
         print "current version: {0}".format(self.version)
@@ -105,11 +106,19 @@ class Release(setuptools.Command):
         if egg_infos:
             sh.sudo.rm("-rf", *egg_infos)
 
+    def update_local_git():
+        self.clean()
+        git = sh.git
+        short_version = "v{0}".format(self.version)
+        long_version = "version {0}".format(self.version)
+        git.commit("-a", "-m", long_version, _out=printer)
+        git.tag("-a", short_version, "-m", long_version, _out=printer)
+        
     def release_on_pypi(self):
         self.clean()
         setup = sh.Command("./setup.py")
 
-        # needs to be non-interactive: use a .pypirc file
+        # non-interactive only: use a .pypirc file
         response = setup("register")
         print response
         last_line = str(response).splitlines()[-1]
@@ -125,11 +134,6 @@ class Release(setuptools.Command):
     def release_on_github(self):
         self.clean()
         git = sh.git
-        short_version = "v{0}".format(self.version)
-        long_version = "version {0}".format(self.version)
-        git.commit("-a", "-m", long_version, _out=printer)
-        git.push(_out=printer)
-        git.tag("-a", short_version, "-m", long_version, _out=printer)
         git.push("--all", _out=printer)
         git.push("--tags", _out=printer)
 
