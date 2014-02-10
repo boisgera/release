@@ -106,7 +106,7 @@ class Release(setuptools.Command):
         if egg_infos:
             sh.sudo.rm("-rf", *egg_infos)
 
-    def update_local_git():
+    def update_local_git(self):
         self.clean()
         git = sh.git
         short_version = "v{0}".format(self.version)
