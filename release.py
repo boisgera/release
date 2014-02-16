@@ -96,7 +96,7 @@ class Release(setuptools.Command):
         return (answer[0].upper() == "Y")        
 
     def clean(self):
-        sudo_setup = getattr(sh.sudo, "./setup.py")
+        sudo_setup = getattr(sh.sudo.python, "setup.py")
         sudo_setup.clean()
         sh.sudo("rm", "-rf", "dist", "build")
         cwd = path.path(".")
@@ -116,7 +116,7 @@ class Release(setuptools.Command):
         
     def release_on_pypi(self):
         self.clean()
-        setup = sh.Command("./setup.py")
+        setup = getattr(sh.python, "setup.py")
 
         # non-interactive only: use a .pypirc file
         response = setup("register")
