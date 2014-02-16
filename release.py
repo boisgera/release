@@ -44,7 +44,7 @@ class Release(setuptools.Command):
                     value = value.lower()
                     if value in ["y", "yes", "t", "true", "on", "1"]:
                         value = True
-                    elif value in ["n", "no", "f", "false", "off", "0"]:
+                    elif value in ["n", "no", "f", "false", "off", "0", ""]:
                         value = False
                     else:
                         error = "invalid truth value for option {0!r}: {1!r}."
@@ -70,6 +70,7 @@ class Release(setuptools.Command):
                 if self.github:
                     self.release_on_github()
 
+    # TODO: sort the versions (semantic versionning)
     def display_pypi(self):
         pypi = xmlrpclib.ServerProxy("http://pypi.python.org/pypi")
         print "current version: {0}".format(self.version)
