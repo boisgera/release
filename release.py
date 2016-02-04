@@ -112,7 +112,7 @@ class Release(setuptools.Command):
         git = sh.git
         short_version = "v{0}".format(self.version)
         long_version = "version {0}".format(self.version)
-        git.commit("-a", "-m", long_version, _out=printer)
+        git.commit("--allow-empty", "-a", "-m", long_version, _out=printer)
         git.tag("-a", short_version, "-m", long_version, _out=printer)
         
     def release_on_pypi(self):
